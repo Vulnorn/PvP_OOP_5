@@ -7,8 +7,6 @@ using System.Collections.Generic;
 // AncientBehemoth At - 19; Def - 19 ; Dam - 30-50; Hp - 300; Sed - 9 ; Spel - Снижает броню цели при ударе, (80%*защита цели - 1) округление вверх.
 // Haspid At - 29; Def - 20 ; Dam - 30-55; Hp - 300; Sed - 12 ; Spel - 30% отравить цель - здоровье снижается на 10% за раунт в течении 3х раундов. spell  - Месть увеличение урона в зависимости от недостающего здоровья - [Корень квадратный ((HP) / (HPnow + HP) - 1) * 100%)]
 
-
-
 namespace PvP_OOP_5_Players
 {
     internal class Program
