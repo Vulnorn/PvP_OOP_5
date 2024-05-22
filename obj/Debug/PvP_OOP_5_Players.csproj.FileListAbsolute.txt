@@ -1,0 +1,8 @@
+C:\Users\mixad\GitRepost\PvP_OOP\obj\Debug\PvP_OOP_5_Players.csproj.AssemblyReference.cache
+C:\Users\mixad\GitRepost\PvP_OOP\obj\Debug\PvP_OOP_5_Players.csproj.SuggestedBindingRedirects.cache
+C:\Users\mixad\GitRepost\PvP_OOP\obj\Debug\PvP_OOP_5_Players.csproj.CoreCompileInputs.cache
+C:\Users\mixad\GitRepost\PvP_OOP\bin\Debug\PvP_OOP_5_Players.exe.config
+C:\Users\mixad\GitRepost\PvP_OOP\bin\Debug\PvP_OOP_5_Players.exe
+C:\Users\mixad\GitRepost\PvP_OOP\bin\Debug\PvP_OOP_5_Players.pdb
+C:\Users\mixad\GitRepost\PvP_OOP\obj\Debug\PvP_OOP_5_Players.exe
+C:\Users\mixad\GitRepost\PvP_OOP\obj\Debug\PvP_OOP_5_Players.pdb
