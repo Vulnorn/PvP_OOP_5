@@ -1,5 +1,6 @@
 ﻿using System;
 
+
 // Archangel At - 30; Def -30 ; Dam - 50-50; Hp - 1250; Sed - 18 ; Spel - 30% morals. 150% dam ArchDevil
 // ArchDevil At - 26; Def -28 ; Dam - 30-40; Hp - 1200; Sed - 17 ; Spel - -30% udaca. 150% dam Archangel, ne imeet otbetnogo udara
 // GhostDragon At - 19; Def - 17 ; Dam - 25-50; Hp - 200; Sed - 14 ; Spel - -30% morals. 20% spell Старость (снижает здоровье на 50% на 3 раунда)
@@ -45,22 +46,32 @@ namespace PvP_OOP_5_Players
 
             int numberOfUnits = units.Length;
             int unitsNumber;
+            bool IsTrue= false;
 
             Console.WriteLine($"Красный Игрок выберите себе юнита.");
 
-            while (Utilite.TryGetPositiveNumber(out unitsNumber, numberOfUnits) == false)
+            while (IsTrue == false)
             {
+                if (Utilite.TryGetPositiveNumber(out unitsNumber, numberOfUnits) == true)
+                {
                 unitsNumber--;
                 _playerRed = new PlayerRed(units[unitsNumber]);
+                    IsTrue=true;
+                }
             }
 
             Console.WriteLine($"Красный игрок выбрал {_playerRed.Unit.Name}");
             Console.WriteLine($"Синий Игрок выберите себе юнита.");
+            IsTrue = false;
 
-            while (Utilite.TryGetPositiveNumber(out unitsNumber, numberOfUnits) == false)
+            while (IsTrue == false)
             {
-                unitsNumber--;
-                _playerBlue = new PlayerBlue(units[unitsNumber]);
+                if (Utilite.TryGetPositiveNumber(out unitsNumber, numberOfUnits) == true)
+                {
+                    unitsNumber--;
+                    _playerBlue = new PlayerBlue(units[unitsNumber]);
+                    IsTrue = true;
+                }
             }
 
             Console.WriteLine($"Синий игрок выбрал {_playerBlue.Unit.Name}");
@@ -70,14 +81,16 @@ namespace PvP_OOP_5_Players
         public void Start()
         {
             DefiningStrikeInitiative();
+            _playerBlue.Unit.UseDebaff(_playerRed);
+            _playerRed.Unit.UseDebaff(_playerBlue);
             StartFate();
         }
 
         private void DefiningStrikeInitiative()
         {
             Console.WriteLine($"Определение очередности ходов. Юнит с большей скоростью наносит атаку быстрее: " +
-                $"{_playerRed.Unit.Name} имеет - {_playerRed.Unit.Speed} скорость" +
-                $"{_playerBlue.Unit.Name} имеет - {_playerBlue.Unit.Speed} скорость");
+                $"\n{_playerRed.Unit.Name} имеет - {_playerRed.Unit.Speed} скорость" +
+                $"\n{_playerBlue.Unit.Name} имеет - {_playerBlue.Unit.Speed} скорость");
 
             if (_playerRed.Unit.Speed >= _playerBlue.Unit.Speed)
             {
@@ -89,6 +102,8 @@ namespace PvP_OOP_5_Players
                 _playerBlue.TakeInitiative();
                 Console.WriteLine($"Первым атакует Синий игрок");
             }
+
+            Console.ReadKey();
         }
 
         private void StartFate()
@@ -99,18 +114,31 @@ namespace PvP_OOP_5_Players
                 {
                     CombatMechanics.Attack(_playerRed, _playerBlue);
                     CombatMechanics.Counterattack(_playerRed, _playerBlue);
+
+                    Console.ReadKey();
+
+                    CombatMechanics.Attack(_playerBlue, _playerRed);
+                    CombatMechanics.Counterattack(_playerBlue, _playerRed);
                     Console.WriteLine($"У Крассного юнита {_playerRed.Unit.Name} осталось {_playerRed.Unit.Health} здоровья" +
-                        $"У Синего юнита {_playerBlue.Unit.Name} осталось  {_playerBlue.Unit.Health}  здоровья" +
-                        $"______");
+                        $"\nУ Синего юнита {_playerBlue.Unit.Name} осталось  {_playerBlue.Unit.Health}  здоровья" +
+                        $"\n______");
+
                 }
                 else
                 {
                     CombatMechanics.Attack(_playerBlue, _playerRed);
                     CombatMechanics.Counterattack(_playerBlue, _playerRed);
-                    Console.WriteLine($"У Крассного юнита {_playerRed.Unit.Name} осталось {_playerRed.Unit.Health} здоровья" +
-                        $"У Синего юнита {_playerBlue.Unit.Name} осталось  {_playerBlue.Unit.Health}  здоровья" +
+
+                    Console.ReadKey();
+
+                    CombatMechanics.Attack(_playerRed, _playerBlue);
+                    CombatMechanics.Counterattack(_playerRed, _playerBlue);
+                    Console.WriteLine($"У Крассного {_playerRed.Unit.Name} осталось {_playerRed.Unit.Health} здоровья" +
+                        $"У Синего {_playerBlue.Unit.Name} осталось  {_playerBlue.Unit.Health}  здоровья" +
                         $"______");
                 }
+
+                            Console.ReadKey();
             }
 
             Console.WriteLine($"Игра завершена.");
@@ -118,7 +146,7 @@ namespace PvP_OOP_5_Players
         }
     }
 
-    class Unit
+   abstract class Unit
     {
         public Unit(string name, int attack, int defense, int minDamage, int maxDamage, int health, int speed, int morale, int luck, int abilityCounterattack)
         {
@@ -134,7 +162,7 @@ namespace PvP_OOP_5_Players
             AbilityCounterattack = abilityCounterattack;
         }
 
-        public string Name { get; private set; }
+        public string Name { get; protected set; }
         public int Attack { get; private set; }
         public int Defense { get; private set; }
         public int MinDamage { get; private set; }
@@ -146,7 +174,7 @@ namespace PvP_OOP_5_Players
         public int Luck { get; private set; }
         public int AbilityCounterattack { get; private set; }
 
-        public virtual void UseDebaff(Player opponent) { }
+        public abstract void UseDebaff(Player opponent);
 
         public virtual void CalculateDamege()
         {
@@ -204,7 +232,7 @@ namespace PvP_OOP_5_Players
 
         public override void UseDebaff(Player opponent)
         {
-            int defense = (int)(opponent.Unit.Defense - (Math.Round(0.8 * opponent.Unit.Defense) - 1));
+            int defense = ((opponent.Unit.Defense - (int)Math.Round(0.8 * opponent.Unit.Defense)) - 1);
 
             opponent.Unit.GetParameter("Defense", defense);
         }
@@ -278,7 +306,9 @@ namespace PvP_OOP_5_Players
         public override void CalculateDamege()
         {
             int damage = Utilite.GetRandomNumber(MinDamage, MaxDamage);
-            damage = damage + (int)Math.Round(Math.Sqrt(2300 / (Health + 1300) - 1) * 100);
+            damage +=(int)Math.Round(Math.Sqrt(2600f / (Health + 1300f) - 1f) * 100f);
+
+            Console.WriteLine($"Урон увеличился  на {Math.Round(Math.Sqrt(2600f / (Health + 1300f) - 1f) * 100f)}");
 
             GetParameter("Damage", damage);
         }
@@ -289,6 +319,7 @@ namespace PvP_OOP_5_Players
         public static void Attack(Player attacker, Player defending)
         {
             int baseDamageModifier;
+            attacker.Unit.CalculateDamege();
 
             if (attacker.Unit.Attack < defending.Unit.Defense)
             {
@@ -300,6 +331,7 @@ namespace PvP_OOP_5_Players
             }
 
             int health = defending.Unit.Health - (attacker.Unit.Damage + baseDamageModifier);
+            Console.WriteLine($"{attacker.Unit.Name} наносит {attacker.Unit.Damage + baseDamageModifier} Урона");
             defending.Unit.GetParameter("Health", health);
         }
 
@@ -307,22 +339,25 @@ namespace PvP_OOP_5_Players
         {
             if (defending.Unit.AbilityCounterattack == 1)
             {
-                double baseDamageModifier;
+                int baseDamageModifier;
+                attacker.Unit.CalculateDamege();
 
                 if (defending.Unit.Attack < attacker.Unit.Defense)
                 {
-                    baseDamageModifier = (defending.Unit.Attack - attacker.Unit.Defense) * 0.025 * defending.Unit.Damage;
-                    Math.Ceiling(baseDamageModifier);
+                    baseDamageModifier = (int)Math.Round((defending.Unit.Attack - attacker.Unit.Defense) * 0.025 * defending.Unit.Damage);
+                    
                 }
                 else
                 {
-                    baseDamageModifier = (defending.Unit.Attack - attacker.Unit.Defense) * 0.05 * defending.Unit.Damage;
-                    Math.Ceiling(baseDamageModifier);
+                    baseDamageModifier = (int)Math.Round((defending.Unit.Attack - attacker.Unit.Defense) * 0.05 * defending.Unit.Damage);
+                    
                 }
 
-                int health = attacker.Unit.Health - (defending.Unit.Damage + (int)Math.Round(baseDamageModifier));
+                int health = attacker.Unit.Health - (defending.Unit.Damage + (baseDamageModifier));
 
                 attacker.Unit.GetParameter("Health", health);
+
+                Console.WriteLine($"Ответный удар - {defending.Unit.Name} наносит {defending.Unit.Damage + baseDamageModifier} Урона");
             }
         }
     }
@@ -335,7 +370,7 @@ namespace PvP_OOP_5_Players
             Initiative = initiative;
         }
 
-        public Unit Unit { get; private set; }
+        public Unit Unit { get; protected set; }
         public int Initiative { get; private set; }
 
         public void TakeInitiative()
