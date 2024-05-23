@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Xml.Linq;
 
 // Archangel At - 30; Def -30 ; Dam - 50-50; Hp - 1250; Sed - 18 ; Spel - 30% morals. 150% dam ArchDevil
 // ArchDevil At - 26; Def -28 ; Dam - 30-40; Hp - 1200; Sed - 17 ; Spel - -30% udaca. 150% dam Archangel, ne imeet otbetnogo udara
@@ -15,6 +14,7 @@ namespace PvP_OOP_5_Players
         {
             Game game = new Game();
             int number = Utilite.GetRandomNumber(5, 10);
+            game.Start();
         }
     }
 
@@ -22,13 +22,11 @@ namespace PvP_OOP_5_Players
     {
         private PlayerBlue _playerBlue;
         private PlayerRed _playerRed;
-        private bool isWork = true;
 
         public Game()
         {
             Create();
         }
-
 
         private void Create()
         {
@@ -43,7 +41,7 @@ namespace PvP_OOP_5_Players
 
             for (int i = 0; i < units.Length; i++)
             {
-                Console.Write($"{i + 1} - {units[i].Name}");
+                Console.WriteLine($"{i + 1} - {units[i].Name}");
             }
 
             int numberOfUnits = units.Length;
@@ -54,33 +52,26 @@ namespace PvP_OOP_5_Players
             while (Utilite.TryGetPositiveNumber(out unitsNumber, numberOfUnits) == false)
             {
                 unitsNumber--;
+                _playerRed = new PlayerRed(units[unitsNumber]);
             }
 
-            _playerRed = new PlayerRed(units[unitsNumber]);
-
+            Console.WriteLine($"Красный игрок выбрал {_playerRed.Unit.Name}");
             Console.WriteLine($"Синий Игрок выберите себе юнита.");
 
             while (Utilite.TryGetPositiveNumber(out unitsNumber, numberOfUnits) == false)
             {
                 unitsNumber--;
+                _playerBlue = new PlayerBlue(units[unitsNumber]);
             }
 
-            _playerBlue = new PlayerBlue(units[unitsNumber]);
+            Console.WriteLine($"Синий игрок выбрал {_playerBlue.Unit.Name}");
+            Console.ReadKey();
         }
 
         public void Start()
         {
             DefiningStrikeInitiative();
-
             StartFate();
-        }
-
-        private void Stop()
-        {
-            Console.WriteLine($"Игра завершена.");
-            Console.ReadKey();
-
-            isWork = false;
         }
 
         private void DefiningStrikeInitiative()
@@ -88,7 +79,6 @@ namespace PvP_OOP_5_Players
             Console.WriteLine($"Определение очередности ходов. Юнит с большей скоростью наносит атаку быстрее: " +
                 $"{_playerRed.Unit.Name} имеет - {_playerRed.Unit.Speed} скорость" +
                 $"{_playerBlue.Unit.Name} имеет - {_playerBlue.Unit.Speed} скорость");
-
 
             if (_playerRed.Unit.Speed >= _playerBlue.Unit.Speed)
             {
@@ -104,10 +94,28 @@ namespace PvP_OOP_5_Players
 
         private void StartFate()
         {
-            while (_playerRed.Unit.Health > 0 && _playerBlue.Unit.Health > 0)
+            while (_playerRed.Unit.Health >= 0 && _playerBlue.Unit.Health >= 0)
             {
-
+                if (_playerRed.Initiative == 1)
+                {
+                    CombatMechanics.Attack(_playerRed, _playerBlue);
+                    CombatMechanics.Counterattack(_playerRed, _playerBlue);
+                    Console.WriteLine($"У Крассного юнита {_playerRed.Unit.Name} осталось {_playerRed.Unit.Health} здоровья" +
+                        $"У Синего юнита {_playerBlue.Unit.Name} осталось  {_playerBlue.Unit.Health}  здоровья" +
+                        $"______");
+                }
+                else
+                {
+                    CombatMechanics.Attack(_playerBlue, _playerRed);
+                    CombatMechanics.Counterattack(_playerBlue, _playerRed);
+                    Console.WriteLine($"У Крассного юнита {_playerRed.Unit.Name} осталось {_playerRed.Unit.Health} здоровья" +
+                        $"У Синего юнита {_playerBlue.Unit.Name} осталось  {_playerBlue.Unit.Health}  здоровья" +
+                        $"______");
+                }
             }
+
+            Console.WriteLine($"Игра завершена.");
+            Console.ReadKey();
         }
     }
 
@@ -146,7 +154,6 @@ namespace PvP_OOP_5_Players
         {
             Damage = Utilite.GetRandomNumber(MinDamage, MaxDamage);
         }
-
 
         public virtual void GetParameter(string name, int value)
         {
@@ -190,7 +197,6 @@ namespace PvP_OOP_5_Players
                 Damage = value;
                 return;
             }
-
         }
     }
 
@@ -274,7 +280,6 @@ namespace PvP_OOP_5_Players
         public override void CalculateDamege()
         {
             int damage = Utilite.GetRandomNumber(MinDamage, MaxDamage);
-
             damage = damage + (int)Math.Round(Math.Sqrt(2300 / (Health + 1300) - 1) * 100);
 
             GetParameter("Damage", damage);
@@ -283,28 +288,44 @@ namespace PvP_OOP_5_Players
 
     class CombatMechanics
     {
-        public void Attack(Player attacker, Player defending)
+        public static void Attack(Player attacker, Player defending)
         {
-            double baseDamageModifier;
+            int baseDamageModifier;
 
             if (attacker.Unit.Attack < defending.Unit.Defense)
             {
-                baseDamageModifier = (attacker.Unit.Attack - defending.Unit.Defense) * 0.025 * attacker.Unit.Damage;
-                Math.Ceiling(baseDamageModifier);
+                baseDamageModifier = (int)Math.Round((attacker.Unit.Attack - defending.Unit.Defense) * 0.025 * attacker.Unit.Damage);
             }
             else
             {
-                baseDamageModifier = (attacker.Unit.Attack - defending.Unit.Defense) * 0.05 * attacker.Unit.Damage;
-                Math.Ceiling(baseDamageModifier);
+                baseDamageModifier = (int)Math.Round((attacker.Unit.Attack - defending.Unit.Defense) * 0.05 * attacker.Unit.Damage);
             }
 
-            int health = defending.Unit.Health - (attacker.Unit.Damage + (int)Math.Round(baseDamageModifier));
-
+            int health = defending.Unit.Health - (attacker.Unit.Damage + baseDamageModifier);
             defending.Unit.GetParameter("Health", health);
         }
-        public void Counterattack(Player attacker, Player defending)
-        {
 
+        public static void Counterattack(Player attacker, Player defending)
+        {
+            if (defending.Unit.AbilityCounterattack == 1)
+            {
+                double baseDamageModifier;
+
+                if (defending.Unit.Attack < attacker.Unit.Defense)
+                {
+                    baseDamageModifier = (defending.Unit.Attack - attacker.Unit.Defense) * 0.025 * defending.Unit.Damage;
+                    Math.Ceiling(baseDamageModifier);
+                }
+                else
+                {
+                    baseDamageModifier = (defending.Unit.Attack - attacker.Unit.Defense) * 0.05 * defending.Unit.Damage;
+                    Math.Ceiling(baseDamageModifier);
+                }
+
+                int health = attacker.Unit.Health - (defending.Unit.Damage + (int)Math.Round(baseDamageModifier));
+
+                attacker.Unit.GetParameter("Health", health);
+            }
         }
     }
 
@@ -323,7 +344,6 @@ namespace PvP_OOP_5_Players
         {
             Initiative = 1;
         }
-
     }
     class PlayerRed : Player
     {
@@ -334,7 +354,6 @@ namespace PvP_OOP_5_Players
     {
         public PlayerBlue(Unit unit) : base(unit, 0) { }
     }
-
 
     class Utilite
     {
@@ -382,7 +401,7 @@ namespace PvP_OOP_5_Players
 
         private static bool IsNegativeNumber(int number)
         {
-            return number > 1;
+            return number < 0;
         }
     }
 }
