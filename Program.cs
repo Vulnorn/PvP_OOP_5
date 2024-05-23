@@ -13,7 +13,6 @@ namespace PvP_OOP_5_Players
         static void Main(string[] args)
         {
             Game game = new Game();
-            int number = Utilite.GetRandomNumber(5, 10);
             game.Start();
         }
     }
@@ -121,7 +120,6 @@ namespace PvP_OOP_5_Players
 
     class Unit
     {
-
         public Unit(string name, int attack, int defense, int minDamage, int maxDamage, int health, int speed, int morale, int luck, int abilityCounterattack)
         {
             Name = name;
